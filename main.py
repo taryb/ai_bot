@@ -4,12 +4,15 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QTextEdit, QLineEdit, QPushButton
 )
 import ollama
+import yaml
 
 
 class AibotUI(QWidget):
     def __init__(self):
         super().__init__()
         self.chat_history = []
+        self.load_config()
+
 
         layout = QVBoxLayout()
 
@@ -29,6 +32,18 @@ class AibotUI(QWidget):
 
         layout.addLayout(input_row)
         self.setLayout(layout)
+    def load_config(self):
+        try:
+            with open("config.yaml", "r") as f:
+                cfg = yaml.safe_load(f)
+                self.model_name = cfg.get("model", "mistral")
+                system_prompt = cfg.get("system_prompt", "").strip()
+                if system_prompt:
+                    self.chat_history.append({"role": "system", "content": system_prompt})
+        except Exception as e:
+            self.model_name = "mistral"
+            print(f"[WARN] config.yaml not loaded: {e}")
+
         
     def handle_send(self):
         message = self.input_field.text().strip()
@@ -42,8 +57,9 @@ class AibotUI(QWidget):
 
         try:
             response = ollama.chat(
-            model="llama2-uncensored",
+            model=self.model_name,
             messages=self.chat_history)
+
 
             reply = response['message']['content']
             self.chat_log.append(f"<b>AI:</b> {reply}")
