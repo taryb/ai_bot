@@ -3,10 +3,13 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QHBoxLayout, QTextEdit, QLineEdit, QPushButton
 )
+import ollama
+
 
 class AibotUI(QWidget):
     def __init__(self):
         super().__init__()
+        self.chat_history = []
 
         layout = QVBoxLayout()
 
@@ -26,12 +29,28 @@ class AibotUI(QWidget):
 
         layout.addLayout(input_row)
         self.setLayout(layout)
-        def handle_send(self):
-            message = self.input_field.text().strip()
-            if not message:
-                return
-            self.chat_log.append(f"<b>You:</b> {message}")
-            self.input_field.clear()
+        
+    def handle_send(self):
+        message = self.input_field.text().strip()
+        if not message:
+            return
+
+        self.chat_log.append(f"<b>You:</b> {message}")
+        self.input_field.clear()
+
+        self.chat_history.append({"role": "user", "content": message})
+
+        try:
+            response = ollama.chat(
+            model="llama2-uncensored",
+            messages=self.chat_history)
+
+            reply = response['message']['content']
+            self.chat_log.append(f"<b>AI:</b> {reply}")
+            self.chat_history.append({"role": "assistant", "content": reply})
+        except Exception as e:
+            self.chat_log.append(f"<b>Error:</b> {e}")
+
 
 
 
