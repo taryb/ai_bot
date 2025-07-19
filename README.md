@@ -62,5 +62,3 @@ If config.yaml is missing or broken, the app defaults to using mistral
 🪪 License
 
 MIT — free to use, modify, and share. Attribution appreciated but not required.
-
-Let me know if you want this turned into a styled PDF again, or ready to commit it.
